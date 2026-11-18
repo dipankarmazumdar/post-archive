@@ -1,0 +1,10 @@
+node_modules
+uploads
+.next
+data
+.env
+.env.local
+*.bundle.json
+coverage
+tsconfig.tsbuildinfo
+*.log
