@@ -11,9 +11,9 @@
   --mark: #f3d27a;
   --danger: #8d2b2b;
   --shadow: 0 1px 0 rgba(28, 25, 21, 0.04);
-  --serif: var(--font-serif), "Iowan Old Style", Palatino, Georgia, serif;
-  --sans: var(--font-sans), "Avenir Next", "Segoe UI", sans-serif;
-  --mono: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  --serif: "Open Sauce Sans", "Avenir Next", "Segoe UI", sans-serif;
+  --sans: "Open Sauce Sans", "Avenir Next", "Segoe UI", sans-serif;
+  --mono: "Open Sauce Sans", "Avenir Next", "Segoe UI", sans-serif;
   color-scheme: light;
 }
 
@@ -33,7 +33,7 @@ body:has(.font-serif) { font-family: var(--sans); }
 a { color: var(--clay); text-underline-offset: 0.18em; }
 a:hover { color: var(--pine); }
 img { max-width: 100%; height: auto; }
-h1, h2, h3, h4 { font-family: var(--serif); font-weight: 560; letter-spacing: -0.02em; line-height: 1.15; }
+h1, h2, h3, h4 { font-family: var(--sans); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
 p { margin: 0 0 0.9rem; }
 .skip {
   position: absolute;
@@ -51,7 +51,7 @@ p { margin: 0 0 0.9rem; }
 .header-row { display: flex; flex-wrap: wrap; gap: 0.8rem 1.5rem; align-items: flex-end; justify-content: space-between; padding: 0.9rem 0; }
 .wordmark { text-decoration: none; color: inherit; }
 .wordmark small { display: block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pine); }
-.wordmark strong { font-family: var(--serif); font-size: 1.35rem; font-weight: 560; }
+.wordmark strong { font-family: var(--sans); font-size: 1.35rem; font-weight: 600; }
 .nav { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; align-items: center; }
 .nav a { color: var(--ink); text-decoration: none; font-size: 0.98rem; }
 .nav a[aria-current="page"], .nav a:hover { color: var(--pine); }
