@@ -1,17 +1,28 @@
 import Link from "next/link";
 import { PostCard } from "@/components/post-card";
 import { EmptyState } from "@/components/chrome";
-import { getPublishedLibrary, publicPosts } from "@/lib/queries";
+import { sql } from "@/lib/db";
+import { getPublishedLibrary, publicPosts, searchDocsFromPublic } from "@/lib/queries";
+import { ALIAS_GROUPS, searchDocuments } from "@/lib/search";
 import { SITE_DESCRIPTION } from "@/lib/site";
 
-export default async function HomePage() {
+const RESULT_COUNT = 6;
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const rawQuery = (await searchParams).q;
+  const q = (Array.isArray(rawQuery) ? rawQuery[0] : rawQuery ?? "").trim().slice(0, 200);
   const library = await getPublishedLibrary();
   const posts = publicPosts(library);
   const byId = new Map(posts.map((post) => [post.id, post]));
-  const startHere = library.startHere
-    .map((item) => byId.get(item.postId))
-    .filter((post): post is NonNullable<typeof post> => Boolean(post))
-    .slice(0, 4);
+  const aliases = await sql<{ alias: string; tag_slug: string }>(`select alias, tag_slug from tag_aliases`);
+  const groups = [...ALIAS_GROUPS, ...aliases.map((row) => [row.alias, row.tag_slug.replace(/-/g, " ")])];
+  const hits = q
+    ? searchDocuments(searchDocsFromPublic(posts, library.collections), q, groups).slice(0, RESULT_COUNT)
+    : [];
   const recent = posts.slice(0, 6);
   return (
     <>
@@ -19,25 +30,32 @@ export default async function HomePage() {
         <p className="kicker">Dipankar Mazumdar</p>
         <h1>Post Archive</h1>
         <p className="dek">{SITE_DESCRIPTION}</p>
-        <form className="hero-search" action="/explore" method="get" role="search">
+        <form className="hero-search" action="/" method="get" role="search">
           <label className="sr-only" htmlFor="home-q">Search posts</label>
-          <input id="home-q" name="q" type="search" placeholder="Puffin, Flink, MCP…" />
+          <input id="home-q" name="q" type="search" defaultValue={q} placeholder="Puffin, Flink, MCP…" />
           <button type="submit">Search</button>
         </form>
       </section>
 
-      <section className="section" aria-labelledby="start-here">
-        <h2 id="start-here">Start here</h2>
-        {startHere.length ? (
-          <div className="card-grid">
-            {startHere.map((post) => <PostCard key={post.id} post={post} />)}
-          </div>
-        ) : (
-          <EmptyState title="Starting points are still being chosen">
-            <p>Published posts will appear here once a reading path is curated. The topics below are ready to browse.</p>
-          </EmptyState>
-        )}
-      </section>
+      {q ? (
+        <section className="section" aria-labelledby="matches">
+          <h2 id="matches">Closest posts for “{q}”</h2>
+          {hits.length ? (
+            <div className="post-list">
+              {hits.map((hit) => {
+                const post = byId.get(hit.id);
+                if (!post) return null;
+                return <PostCard key={post.id} post={post} snippet={hit.snippet} />;
+              })}
+            </div>
+          ) : (
+            <EmptyState title="No matching posts">
+              <p>Nothing published matches that search. Try a shorter phrase, such as Puffin, Flink, or MCP.</p>
+            </EmptyState>
+          )}
+          <p className="meta"><Link href={`/explore?q=${encodeURIComponent(q)}&sort=relevance`}>See every match</Link></p>
+        </section>
+      ) : null}
 
       <section className="section" aria-labelledby="topics">
         <h2 id="topics">Topics to explore</h2>
