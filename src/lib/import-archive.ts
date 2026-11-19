@@ -17,6 +17,7 @@ export type ImportReport = {
   ambiguousKeys: string[];
   mediaAttached: number;
   ambiguousMedia: number;
+  publishNew: boolean;
 };
 
 type Existing = {
@@ -30,7 +31,13 @@ type Existing = {
   status: string;
 };
 
-export async function importParsed(sql: Sql, parsed: ParsedExport, mode: "dry-run" | "apply"): Promise<ImportReport> {
+export async function importParsed(
+  sql: Sql,
+  parsed: ParsedExport,
+  mode: "dry-run" | "apply",
+  options: { publishNew?: boolean } = {},
+): Promise<ImportReport> {
+  const publishNew = options.publishNew === true;
   const existingRows = await sql<Existing>(
     `select id, external_key, content_hash, title_locked, excerpt_locked, post_type_locked, primary_topic_locked, status from posts`,
   );
@@ -48,6 +55,7 @@ export async function importParsed(sql: Sql, parsed: ParsedExport, mode: "dry-ru
     ambiguousKeys: unique(parsed.ambiguous.map((item) => item.externalKey)).slice(0, 50),
     mediaAttached: 0,
     ambiguousMedia: 0,
+    publishNew,
   };
 
   const ready: { post: ParsedPost; action: "create" | "update" | "unchanged"; existing?: Existing }[] = [];
@@ -89,7 +97,7 @@ export async function importParsed(sql: Sql, parsed: ParsedExport, mode: "dry-ru
 
   const importId = randomUUID();
   for (const item of ready) {
-    if (item.action === "create") await insertPost(sql, item.post, importId);
+    if (item.action === "create") await insertPost(sql, item.post, importId, publishNew);
     else if (item.action === "update" && item.existing) await updatePost(sql, item.existing, item.post, importId);
     await attachMedia(sql, item.existing?.id ?? item.post.id, item.post.media);
   }
@@ -109,22 +117,22 @@ export async function importParsed(sql: Sql, parsed: ParsedExport, mode: "dry-ru
   await rebuildSuggestedCollections(sql);
   await sql(
     `insert into import_runs (id, mode, status, finished_at, stats, message) values ($1, 'apply', 'complete', now(), $2, $3)`,
-    [importId, JSON.stringify(publicStats(report)), "Import applied"],
+    [importId, JSON.stringify(publicStats(report)), publishNew ? "ZIP import published new posts" : "Import applied"],
   );
   return report;
 }
 
-async function insertPost(sql: Sql, post: ParsedPost, importId: string): Promise<void> {
+async function insertPost(sql: Sql, post: ParsedPost, importId: string, publishNew: boolean): Promise<void> {
   const suggestion = classifyPost({ body: post.body, source: post.source, postedAt: post.postedAt });
   await sql(
     `insert into posts (
       id, external_key, source, posted_at, posted_at_precision, body, content_hash, linkedin_url, shared_url,
       status, suggested_title, suggested_excerpt, suggested_post_type, suggested_primary_topic,
-      suggestion_ambiguous, suggestion_note, post_type, primary_topic_slug, last_import_id
+      suggestion_ambiguous, suggestion_note, post_type, primary_topic_slug, published_at, last_import_id
     ) values (
       $1,$2,$3,$4,$5,$6,$7,$8,$9,
-      'draft',$10,$11,$12,$13,
-      $14,$15,$16,$17,$18
+      case when $19::boolean then 'published' else 'draft' end,$10,$11,$12,$13,
+      $14,$15,$16,$17,case when $19::boolean then now() else null end,$18
     )`,
     [
       post.id,
@@ -145,6 +153,7 @@ async function insertPost(sql: Sql, post: ParsedPost, importId: string): Promise
       suggestion.postType,
       suggestion.primaryTopic,
       importId,
+      publishNew,
     ],
   );
   await replaceSuggestedTaxonomy(sql, post.id, suggestion.primaryTopic, suggestion.secondaryTopics, suggestion.tags);
@@ -349,7 +358,11 @@ export function formatReport(report: ImportReport): string {
     lines.push(`  ${file.note}`);
   }
   lines.push("Engagement metrics: none in the post files. Reactions and comments were not read.");
-  lines.push("New and updated posts stay drafts. Existing publish status is left unchanged.");
+  lines.push(
+    report.publishNew
+      ? "New posts are published. Existing publish status is left unchanged."
+      : "New and updated posts stay drafts. Existing publish status is left unchanged.",
+  );
   return lines.join("\n");
 }
 
@@ -365,6 +378,7 @@ function publicStats(report: ImportReport): Record<string, unknown> {
     mediaAttached: report.mediaAttached,
     ambiguousMedia: report.ambiguousMedia,
     ignoredFiles: report.ignoredFiles,
+    publishNew: report.publishNew,
     files: report.files.map((file) => ({
       name: file.name,
       records: file.records,

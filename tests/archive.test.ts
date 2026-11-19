@@ -10,7 +10,7 @@ import { toPublicPost, assertPublicShape } from "../src/lib/public";
 import { relatedReading } from "../src/lib/recommend";
 import { searchDocuments } from "../src/lib/search";
 import { classifyPost } from "../src/lib/taxonomy";
-import { isAllowlistedEntry, isSafeZipPath, isSymlinkMode, readAllowlistedZip } from "../src/lib/zip";
+import { isAllowlistedEntry, isSafeZipPath, isSymlinkMode, readAllowlistedZip, readAllowlistedZipBuffer } from "../src/lib/zip";
 import { parseLinkedInPermalink, safeHttpUrl } from "../src/lib/urls";
 import { makeZip, testDb } from "./helpers";
 
@@ -42,6 +42,9 @@ describe("zip safety", () => {
     await expect(readAllowlistedZip(link)).rejects.toThrow(/unsafe/i);
     const bulky = makeZip({ "Shares.csv": "x".repeat(500) });
     await expect(readAllowlistedZip(bulky, { maxEntryBytes: 100, maxTotalBytes: 100, maxEntriesRead: 5 })).rejects.toThrow(/size/i);
+    const buffered = await readAllowlistedZipBuffer(readFileSync(zip));
+    expect(buffered.entries.map((entry) => entry.name)).toEqual(["Shares.csv"]);
+    expect(JSON.stringify(buffered)).not.toContain("PRIVATE_MESSAGE_TOKEN");
   });
 });
 
@@ -194,6 +197,30 @@ describe("imports and publication", () => {
     const afterHide = publicPosts(await loadLibrary(sql, false));
     expect(afterHide).toEqual([]);
     expect(toPublicPost((await loadLibrary(sql, false)).posts[0]!) ).toBeNull();
+    await close();
+  });
+
+  it("publishes posts added from an uploaded export and leaves hidden posts hidden", async () => {
+    const { sql, close } = await testDb();
+    const first = parseExport([{ name: "Shares.csv", text: `${SHARE_HEADER}\n${shareRow("601", puffinBody())}` }], 0);
+    await importParsed(sql, first, "apply", { publishNew: true });
+    const created = await sql<{ status: string; published_at: string | null }>(`select status, published_at from posts where id = 's601'`);
+    expect(created[0]?.status).toBe("published");
+    expect(created[0]?.published_at).toBeTruthy();
+    await setPostStatus(sql, ["s601"], "hidden");
+    const second = parseExport(
+      [{ name: "Shares.csv", text: `${SHARE_HEADER}\n${shareRow("601", puffinBody())}\n${shareRow("602", "A new post about Apache Iceberg snapshots.")}` }],
+      0,
+    );
+    const report = await importParsed(sql, second, "apply", { publishNew: true });
+    expect(report.created).toBe(1);
+    expect(report.unchanged).toBe(1);
+    const rows = await sql<{ id: string; status: string }>(`select id, status from posts order by id`);
+    expect(rows).toEqual([
+      { id: "s601", status: "hidden" },
+      { id: "s602", status: "published" },
+    ]);
+    expect(publicPosts(await loadLibrary(sql, false)).map((post) => post.id)).toEqual(["s602"]);
     await close();
   });
 

@@ -41,7 +41,7 @@ export default async function AdminHome() {
           </table>
         </div>
       ) : (
-        <p>No imports have been applied on this database yet. Use the CLI locally, then publish posts here.</p>
+        <p>No imports have been applied on this database yet. Upload a LinkedIn export from Imports. New posts go live immediately.</p>
       )}
     </>
   );

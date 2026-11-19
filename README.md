@@ -56,7 +56,7 @@ Dry run (no writes):
 npm run import -- --zip /absolute/path/to/Complete_LinkedInDataExport.zip --dry-run
 ```
 
-Apply. New posts are drafts. An older or partial ZIP does not unpublish or delete posts that are missing from it. Locked titles, excerpts, topics, post types, tag rejections, collection exclusions, and publish status are kept. Stop the local server first. PGlite keeps the database open in that one process, and a second writer can damage the files.
+Apply from the command line. New posts stay drafts on this path. An older or partial ZIP does not unpublish or delete posts that are missing from it. Locked titles, excerpts, topics, post types, tag rejections, collection exclusions, and publish status are kept. Stop the local server first. PGlite keeps the database open in that one process, and a second writer can damage the files.
 
 ```bash
 npm run import -- --zip /absolute/path/to/Complete_LinkedInDataExport.zip --apply
@@ -74,7 +74,9 @@ Copy the editorial database into a JSON bundle the deployed editor can upsert. T
 npm run export-bundle -- --out data/archive.bundle.json
 ```
 
-To load a hosted database from your own machine, set `DATABASE_URL` for that command only. Do not commit it, and do not put the ZIP on the server. The running site never needs the ZIP. You can also upload the bundle from Admin → Imports.
+After the app is deployed, open Editor → Imports and upload the LinkedIn export ZIP there. Posts that are not already in the archive are added and published. Posts already stored keep their edits and status, including hidden posts. The ZIP is read in that request and is not saved. Messages, connections, and other private files in the export are ignored. The upload limit is 100 MB.
+
+You can still upload a JSON bundle from Admin → Imports when you want to copy editorial rows produced by `npm run export-bundle`. To load a hosted database from your own machine instead, set `DATABASE_URL` for that command only. Do not commit it.
 
 ## Checks
 

@@ -1,8 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { assertEditor, isEditor } from "@/lib/auth";
 import { importBundle } from "@/lib/bundle";
+import { importParsed } from "@/lib/import-archive";
+import { parseExport } from "@/lib/parse-export";
+import { readAllowlistedZipBuffer, ZIP_UPLOAD_BYTES } from "@/lib/zip";
 import { withTransaction } from "@/lib/db";
 import {
   mergeTags,
@@ -140,6 +144,36 @@ export async function dismissReview(formData: FormData) {
   await gate();
   await withTransaction((query) => resolveReview(query, String(formData.get("id") ?? "")));
   refresh();
+}
+
+export async function uploadZip(formData: FormData) {
+  await gate();
+  const file = formData.get("zip");
+  if (!(file instanceof File) || file.size === 0) redirect("/admin/imports?error=missing");
+  if (file.size > ZIP_UPLOAD_BYTES) redirect("/admin/imports?error=large");
+  const bytes = Buffer.from(await file.arrayBuffer());
+  if (bytes.length < 4 || bytes[0] !== 0x50 || bytes[1] !== 0x4b) redirect("/admin/imports?error=notzip");
+  let added = 0;
+  let updated = 0;
+  let unchanged = 0;
+  let sawShares = false;
+  try {
+    const { entries, ignored } = await readAllowlistedZipBuffer(bytes);
+    const parsed = parseExport(entries, ignored);
+    sawShares = parsed.inventory.some((item) => item.name.replace(/\\/g, "/").endsWith("Shares.csv"));
+    const report = await withTransaction((query) => importParsed(query, parsed, "apply", { publishNew: true }));
+    added = report.created;
+    updated = report.updated;
+    unchanged = report.unchanged;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (/unsafe/i.test(message)) redirect("/admin/imports?error=unsafe");
+    if (/size/i.test(message)) redirect("/admin/imports?error=large");
+    redirect("/admin/imports?error=failed");
+  }
+  refresh();
+  if (!sawShares) redirect("/admin/imports?error=empty");
+  redirect(`/admin/imports?added=${added}&updated=${updated}&unchanged=${unchanged}`);
 }
 
 export async function uploadBundle(formData: FormData) {
