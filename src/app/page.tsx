@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { DiagramGallery } from "@/components/diagrams";
 import { PostCard } from "@/components/post-card";
 import { EmptyState } from "@/components/chrome";
 import { sql } from "@/lib/db";
@@ -8,6 +7,22 @@ import { ALIAS_GROUPS, searchDocuments } from "@/lib/search";
 import { SITE_DESCRIPTION } from "@/lib/site";
 
 const RESULT_COUNT = 6;
+
+const TOPIC_IMAGES: Record<string, string> = {
+  "apache-iceberg": "/images/topic-iceberg.jpg",
+  "open-lakehouse": "/images/topic-lakehouse.jpg",
+  "data-engineering": "/images/topic-engineering.jpg",
+  streaming: "/images/topic-streaming.jpg",
+  "ai-agents": "/images/topic-agents.jpg",
+  "developer-tooling": "/images/topic-tooling.jpg",
+};
+
+const COLLECTION_IMAGES: Record<string, string> = {
+  "iceberg-internals": "/images/topic-iceberg.jpg",
+  "lakehouse-fast": "/images/topic-lakehouse.jpg",
+  "ai-agents": "/images/topic-agents.jpg",
+  "streaming-lakehouse": "/images/topic-streaming.jpg",
+};
 
 export default async function HomePage({
   searchParams,
@@ -27,14 +42,17 @@ export default async function HomePage({
   const recent = posts.slice(0, 6);
   return (
     <>
-      <section className="hero">
-        <h1>Post Archive</h1>
-        <p className="dek">{SITE_DESCRIPTION}</p>
-        <form className="hero-search" action="/" method="get" role="search">
-          <label className="sr-only" htmlFor="home-q">Search posts</label>
-          <input id="home-q" name="q" type="search" defaultValue={q} placeholder="Puffin, Flink, MCP…" />
-          <button type="submit">Search</button>
-        </form>
+      <section className="hero with-photo">
+        <div>
+          <h1>Post Archive</h1>
+          <p className="dek">{SITE_DESCRIPTION}</p>
+          <form className="hero-search" action="/" method="get" role="search">
+            <label className="sr-only" htmlFor="home-q">Search posts</label>
+            <input id="home-q" name="q" type="search" defaultValue={q} placeholder="Puffin, Flink, MCP…" />
+            <button type="submit">Search</button>
+          </form>
+        </div>
+        <img className="hero-photo" src="/images/hero-ice.jpg" alt="" />
       </section>
 
       {q ? (
@@ -57,21 +75,18 @@ export default async function HomePage({
         </section>
       ) : null}
 
-      <section className="section" aria-labelledby="diagrams">
-        <h2 id="diagrams">Diagrams</h2>
-        <p className="dek">Maps of the subjects in the archive. Open one to read the posts behind it.</p>
-        <DiagramGallery />
-      </section>
-
       <section className="section" aria-labelledby="topics">
         <h2 id="topics">Topics to explore</h2>
         <p className="meta"><Link href="/graph">See how these subjects connect</Link></p>
         <div className="topic-grid">
           {library.topics.map((topic) => (
-            <Link key={topic.slug} className="topic-card" href={`/topics/${topic.slug}`}>
-              <p className="meta">{topic.publishedCount} published</p>
-              <h3>{topic.name}</h3>
-              <p>{topic.description}</p>
+            <Link key={topic.slug} className="topic-card picture-card" href={`/topics/${topic.slug}`}>
+              {TOPIC_IMAGES[topic.slug] ? <img src={TOPIC_IMAGES[topic.slug]} alt="" /> : null}
+              <span className="card-copy">
+                <p className="meta">{topic.publishedCount} published</p>
+                <h3>{topic.name}</h3>
+                <p>{topic.description}</p>
+              </span>
             </Link>
           ))}
         </div>
@@ -96,10 +111,13 @@ export default async function HomePage({
           {library.collections.map((collection) => {
             const published = collection.postIds.filter((id) => byId.has(id)).length;
             return (
-              <Link key={collection.slug} className="topic-card" href={`/collections/${collection.slug}`}>
-                <p className="meta">{published ? `${published} published` : "In progress"}</p>
-                <h3>{collection.title}</h3>
-                <p>{collection.description}</p>
+              <Link key={collection.slug} className="topic-card picture-card" href={`/collections/${collection.slug}`}>
+                {COLLECTION_IMAGES[collection.slug] ? <img src={COLLECTION_IMAGES[collection.slug]} alt="" /> : null}
+                <span className="card-copy">
+                  <p className="meta">{published ? `${published} published` : "In progress"}</p>
+                  <h3>{collection.title}</h3>
+                  <p>{collection.description}</p>
+                </span>
               </Link>
             );
           })}
