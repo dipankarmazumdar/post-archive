@@ -8,7 +8,6 @@ export default async function TopicsPage() {
   const library = await getPublishedLibrary();
   return (
     <>
-      <p className="kicker">Taxonomy</p>
       <h1>Topics</h1>
       <p className="dek">Broad subjects for browsing. Specific concepts such as Puffin, deletion vectors, and REST Catalog are tags on the posts themselves.</p>
       <div className="topic-grid">

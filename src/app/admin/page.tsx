@@ -16,7 +16,6 @@ export default async function AdminHome() {
   const openReview = await sql<{ count: string }>(`select count(*)::text as count from review_items where status = 'open'`);
   return (
     <>
-      <p className="kicker">Private</p>
       <h1>Editor</h1>
       <div className="card-grid">
         <div className="panel"><p className="meta">Drafts</p><h2>{counts.draft}</h2></div>

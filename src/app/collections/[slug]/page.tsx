@@ -26,7 +26,6 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
   const posts = collection.postIds.map((id) => byId.get(id)).filter((post): post is NonNullable<typeof post> => Boolean(post));
   return (
     <article>
-      <p className="kicker">Collection</p>
       <h1>{collection.title}</h1>
       <p className="dek">{collection.description}</p>
       {posts.length ? (

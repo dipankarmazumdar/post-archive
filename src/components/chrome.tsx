@@ -16,7 +16,6 @@ export async function SiteHeader({ current }: { current?: string }) {
       <a className="skip" href="#content">Skip to content</a>
       <div className="wrap header-row">
         <Link className="wordmark" href="/">
-          <small>Field notes</small>
           <strong>{SITE_NAME}</strong>
         </Link>
         <nav className="nav" aria-label="Primary">

@@ -25,7 +25,6 @@ export default async function ExplorePage({
   const years = [...new Set(posts.map((post) => String(post.year)))].sort((a, b) => b.localeCompare(a));
   return (
     <>
-      <p className="kicker">Browse</p>
       <h1>Explore</h1>
       <form className="filters" action="/explore" method="get">
         <div>

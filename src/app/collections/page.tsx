@@ -9,7 +9,6 @@ export default async function CollectionsPage() {
   const published = new Set(publicPosts(library).map((post) => post.id));
   return (
     <>
-      <p className="kicker">Reading order</p>
       <h1>Collections</h1>
       <p className="dek">Short paths through the archive. The order is explicit, and unpublished posts stay off the path.</p>
       <div className="card-grid">

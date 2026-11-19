@@ -34,7 +34,6 @@ export default async function TopicPage({
     .filter((post): post is NonNullable<typeof post> => Boolean(post));
   return (
     <article>
-      <p className="kicker">Topic</p>
       <h1>{topic.name}</h1>
       <p className="dek">{topic.description}</p>
       <p><Link href={`/explore?topic=${topic.slug}`}>Open this topic in Explore</Link></p>

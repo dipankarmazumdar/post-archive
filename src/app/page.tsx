@@ -27,7 +27,6 @@ export default async function HomePage({
   return (
     <>
       <section className="hero">
-        <p className="kicker">Dipankar Mazumdar</p>
         <h1>Post Archive</h1>
         <p className="dek">{SITE_DESCRIPTION}</p>
         <form className="hero-search" action="/" method="get" role="search">
