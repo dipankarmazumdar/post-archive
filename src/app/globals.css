@@ -100,7 +100,21 @@ main { padding: 2rem 0 4rem; }
 .hero-search input { font-size: 1.1rem; min-height: 3.1rem; }
 .section { margin: 2.4rem 0; }
 .section h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); margin: 0 0 0.8rem; }
-.topic-grid, .card-grid { display: grid; gap: 0.8rem; grid-template-columns: 1fr; }
+.topic-grid, .card-grid, .diagram-grid { display: grid; gap: 0.8rem; grid-template-columns: 1fr; }
+.diagram-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.75rem 0.8rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  display: grid;
+  gap: 0.45rem;
+}
+.diagram-card h3 { margin: 0.2rem 0 0; font-size: 1.25rem; }
+.diagram-card p { margin: 0; color: var(--ink-soft); }
+.diagram-card:hover { border-color: var(--pine); }
+.diagram { width: 100%; height: auto; display: block; background: #101820; border-radius: 8px; }
 .topic-card, .post-card, .panel {
   background: var(--card);
   border: 1px solid var(--line);
@@ -153,6 +167,7 @@ th { font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); }
 .stack { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 @media (min-width: 760px) {
   .topic-grid { grid-template-columns: repeat(3, 1fr); }
+  .diagram-grid { grid-template-columns: 1fr 1fr; }
   .card-grid { grid-template-columns: 1fr 1fr; }
   .filters { grid-template-columns: 1.4fr repeat(4, minmax(0, 0.8fr)) auto; align-items: flex-end; }
   .admin { grid-template-columns: 12.5rem 1fr; align-items: start; }

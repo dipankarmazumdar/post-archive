@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DiagramGallery } from "@/components/diagrams";
 import { PostCard } from "@/components/post-card";
 import { EmptyState } from "@/components/chrome";
 import { sql } from "@/lib/db";
@@ -55,6 +56,12 @@ export default async function HomePage({
           <p className="meta"><Link href={`/explore?q=${encodeURIComponent(q)}&sort=relevance`}>See every match</Link></p>
         </section>
       ) : null}
+
+      <section className="section" aria-labelledby="diagrams">
+        <h2 id="diagrams">Diagrams</h2>
+        <p className="dek">Maps of the subjects in the archive. Open one to read the posts behind it.</p>
+        <DiagramGallery />
+      </section>
 
       <section className="section" aria-labelledby="topics">
         <h2 id="topics">Topics to explore</h2>
