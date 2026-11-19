@@ -29,7 +29,7 @@ ${body}
 
 export function sitemapEntries(posts: PublicPost[], topics: { slug: string }[], collections: { slug: string }[], origin: string) {
   const now = new Date();
-  const staticPaths = ["", "/explore", "/topics", "/collections"];
+  const staticPaths = ["", "/explore", "/topics", "/graph", "/collections"];
   return [
     ...staticPaths.map((path) => ({ url: `${origin}${path || "/"}`, lastModified: now })),
     ...topics.map((topic) => ({ url: `${origin}/topics/${topic.slug}`, lastModified: now })),

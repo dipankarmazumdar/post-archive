@@ -82,7 +82,7 @@ button, .button {
 }
 .button.secondary, button.secondary { background: transparent; color: var(--ink); border-color: var(--line); }
 .button.danger, button.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
-button:not(.secondary):not(.danger):hover, .button:not(.secondary):not(.danger):hover { background: var(--pine-2); }
+button:not(.secondary):not(.danger):not(.graph-chip):hover, .button:not(.secondary):not(.danger):not(.graph-chip):hover { background: var(--pine-2); }
 button.secondary:hover, .button.secondary:hover { color: var(--pine-2); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 ::selection { background: var(--mark); color: var(--ink); }
@@ -162,4 +162,109 @@ th { font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+}
+
+.graph-page {
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-top: -2rem;
+  margin-bottom: -4rem;
+  height: calc(100dvh - 5.4rem);
+  background: #0c1117;
+  overflow: hidden;
+}
+.graph-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+.graph-canvas:active { cursor: grabbing; }
+.graph-hud, .graph-detail, .graph-tools {
+  position: absolute;
+  z-index: 1;
+  background: rgba(12, 17, 23, 0.88);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+}
+.graph-hud {
+  top: 0.8rem;
+  left: 0.8rem;
+  width: min(22rem, calc(100% - 1.6rem));
+  padding: 0.85rem 0.9rem 0.75rem;
+}
+.graph-hud h1 { margin: 0 0 0.3rem; font-size: 1.2rem; }
+.graph-hud p { margin: 0 0 0.7rem; color: var(--ink-soft); font-size: 0.92rem; }
+.graph-legend { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem; }
+button.graph-chip {
+  min-height: 2rem;
+  padding: 0.15rem 0.6rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+  gap: 0.35rem;
+  font-size: 0.86rem;
+}
+button.graph-chip:hover, button.graph-chip[aria-pressed="true"] {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--pine);
+}
+.graph-swatch { width: 0.55rem; height: 0.55rem; border-radius: 999px; display: inline-block; }
+.graph-count { color: var(--ink-soft); }
+.graph-tools {
+  left: 0.8rem;
+  bottom: 0.8rem;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.4rem;
+}
+.graph-detail {
+  top: 0.8rem;
+  right: 0.8rem;
+  width: min(22rem, calc(100% - 1.6rem));
+  max-height: calc(100% - 1.6rem);
+  overflow: auto;
+  padding: 0.9rem 1rem;
+}
+.graph-detail h2 { margin: 0.15rem 0 0.45rem; font-size: 1.35rem; }
+.graph-posts { margin: 0.4rem 0 0.8rem; padding-left: 1.1rem; }
+.graph-posts li { margin: 0.25rem 0; }
+.graph-tooltip {
+  position: fixed;
+  z-index: 3;
+  max-width: 18rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  background: #151c26;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  pointer-events: none;
+}
+.graph-tooltip strong, .graph-tooltip span { display: block; }
+.graph-tooltip span { color: var(--ink-soft); font-size: 0.82rem; }
+@media (max-width: 759px) {
+  .graph-page { height: calc(100dvh - 13rem); }
+  .graph-hud { width: calc(100% - 1.6rem); padding: 0.65rem 0.7rem; }
+  .graph-hud p { margin-bottom: 0.45rem; }
+  .graph-legend { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.15rem; }
+  .graph-detail {
+    top: auto;
+    right: 0.6rem;
+    left: 0.6rem;
+    bottom: 3.6rem;
+    width: auto;
+    max-height: 34%;
+    z-index: 2;
+  }
+  .graph-tools { bottom: 0.45rem; z-index: 2; }
 }

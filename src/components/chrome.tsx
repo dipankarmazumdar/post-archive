@@ -9,6 +9,7 @@ export async function SiteHeader({ current }: { current?: string }) {
     ["/", "Archive", "home"],
     ["/explore", "Explore", "explore"],
     ["/topics", "Topics", "topics"],
+    ["/graph", "Graph", "graph"],
     ["/collections", "Collections", "collections"],
   ] as const;
   return (

@@ -58,6 +58,7 @@ export default async function HomePage({
 
       <section className="section" aria-labelledby="topics">
         <h2 id="topics">Topics to explore</h2>
+        <p className="meta"><Link href="/graph">See how these subjects connect</Link></p>
         <div className="topic-grid">
           {library.topics.map((topic) => (
             <Link key={topic.slug} className="topic-card" href={`/topics/${topic.slug}`}>
