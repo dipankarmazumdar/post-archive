@@ -146,6 +146,8 @@ th { font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); }
 .status.published { color: var(--pine); }
 .status.hidden { color: var(--danger); }
 .form-grid { display: grid; gap: 0.8rem; }
+.zip-upload { margin: 0 0 1.4rem; }
+.zip-upload h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
 .checks { display: flex; flex-wrap: wrap; gap: 0.45rem 0.9rem; }
 .checks label { display: flex; gap: 0.35rem; align-items: center; }
 .stack { display: flex; flex-wrap: wrap; gap: 0.45rem; }

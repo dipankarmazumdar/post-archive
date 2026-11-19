@@ -1,8 +1,14 @@
 import Link from "next/link";
+import { importNotice, importSummary, ZipUpload } from "@/components/zip-upload";
 import { sql } from "@/lib/db";
 import { getEditorLibrary } from "@/lib/queries";
 
-export default async function AdminHome() {
+export default async function AdminHome({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const notice = importNotice(await searchParams);
   const library = await getEditorLibrary();
   const counts = {
     draft: library.posts.filter((post) => post.status === "draft").length,
@@ -17,6 +23,7 @@ export default async function AdminHome() {
   return (
     <>
       <h1>Editor</h1>
+      <ZipUpload notice={notice} returnTo="/admin" />
       <div className="card-grid">
         <div className="panel"><p className="meta">Drafts</p><h2>{counts.draft}</h2></div>
         <div className="panel"><p className="meta">Published</p><h2>{counts.published}</h2></div>
@@ -34,14 +41,14 @@ export default async function AdminHome() {
                 <tr key={run.id}>
                   <td>{new Date(run.started_at).toISOString()}</td>
                   <td>{run.status}</td>
-                  <td><code>{run.stats}</code></td>
+                  <td>{importSummary(run.stats)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       ) : (
-        <p>No imports have been applied on this database yet. Upload a LinkedIn export from Imports. New posts go live immediately.</p>
+        <p>No imports yet. Use the ZIP upload above. New posts go live immediately.</p>
       )}
     </>
   );

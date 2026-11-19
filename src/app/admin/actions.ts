@@ -146,13 +146,18 @@ export async function dismissReview(formData: FormData) {
   refresh();
 }
 
+function importReturnPath(formData: FormData): "/admin" | "/admin/imports" {
+  return formData.get("next") === "/admin" ? "/admin" : "/admin/imports";
+}
+
 export async function uploadZip(formData: FormData) {
   await gate();
+  const back = importReturnPath(formData);
   const file = formData.get("zip");
-  if (!(file instanceof File) || file.size === 0) redirect("/admin/imports?error=missing");
-  if (file.size > ZIP_UPLOAD_BYTES) redirect("/admin/imports?error=large");
+  if (!(file instanceof File) || file.size === 0) redirect(`${back}?error=missing`);
+  if (file.size > ZIP_UPLOAD_BYTES) redirect(`${back}?error=large`);
   const bytes = Buffer.from(await file.arrayBuffer());
-  if (bytes.length < 4 || bytes[0] !== 0x50 || bytes[1] !== 0x4b) redirect("/admin/imports?error=notzip");
+  if (bytes.length < 4 || bytes[0] !== 0x50 || bytes[1] !== 0x4b) redirect(`${back}?error=notzip`);
   let added = 0;
   let updated = 0;
   let unchanged = 0;
@@ -167,13 +172,13 @@ export async function uploadZip(formData: FormData) {
     unchanged = report.unchanged;
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
-    if (/unsafe/i.test(message)) redirect("/admin/imports?error=unsafe");
-    if (/size/i.test(message)) redirect("/admin/imports?error=large");
-    redirect("/admin/imports?error=failed");
+    if (/unsafe/i.test(message)) redirect(`${back}?error=unsafe`);
+    if (/size/i.test(message)) redirect(`${back}?error=large`);
+    redirect(`${back}?error=failed`);
   }
   refresh();
-  if (!sawShares) redirect("/admin/imports?error=empty");
-  redirect(`/admin/imports?added=${added}&updated=${updated}&unchanged=${unchanged}`);
+  if (!sawShares) redirect(`${back}?error=empty`);
+  redirect(`${back}?added=${added}&updated=${updated}&unchanged=${unchanged}`);
 }
 
 export async function uploadBundle(formData: FormData) {
