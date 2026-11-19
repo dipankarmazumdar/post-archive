@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArchiveArt } from "@/components/archive-art";
 import { PostCard } from "@/components/post-card";
 import { EmptyState } from "@/components/chrome";
 import { sql } from "@/lib/db";
@@ -7,22 +8,6 @@ import { ALIAS_GROUPS, searchDocuments } from "@/lib/search";
 import { SITE_DESCRIPTION } from "@/lib/site";
 
 const RESULT_COUNT = 6;
-
-const TOPIC_IMAGES: Record<string, string> = {
-  "apache-iceberg": "/images/topic-iceberg.jpg",
-  "open-lakehouse": "/images/topic-lakehouse.jpg",
-  "data-engineering": "/images/topic-engineering.jpg",
-  streaming: "/images/topic-streaming.jpg",
-  "ai-agents": "/images/topic-agents.jpg",
-  "developer-tooling": "/images/topic-tooling.jpg",
-};
-
-const COLLECTION_IMAGES: Record<string, string> = {
-  "iceberg-internals": "/images/topic-iceberg.jpg",
-  "lakehouse-fast": "/images/topic-lakehouse.jpg",
-  "ai-agents": "/images/topic-agents.jpg",
-  "streaming-lakehouse": "/images/topic-streaming.jpg",
-};
 
 export default async function HomePage({
   searchParams,
@@ -52,7 +37,7 @@ export default async function HomePage({
             <button type="submit">Search</button>
           </form>
         </div>
-        <img className="hero-photo" src="/images/hero-ice.jpg" alt="" />
+        <ArchiveArt id="hero" />
       </section>
 
       {q ? (
@@ -81,7 +66,7 @@ export default async function HomePage({
         <div className="topic-grid">
           {library.topics.map((topic) => (
             <Link key={topic.slug} className="topic-card picture-card" href={`/topics/${topic.slug}`}>
-              {TOPIC_IMAGES[topic.slug] ? <img src={TOPIC_IMAGES[topic.slug]} alt="" /> : null}
+              <ArchiveArt id={topic.slug} />
               <span className="card-copy">
                 <p className="meta">{topic.publishedCount} published</p>
                 <h3>{topic.name}</h3>
@@ -112,7 +97,7 @@ export default async function HomePage({
             const published = collection.postIds.filter((id) => byId.has(id)).length;
             return (
               <Link key={collection.slug} className="topic-card picture-card" href={`/collections/${collection.slug}`}>
-                {COLLECTION_IMAGES[collection.slug] ? <img src={COLLECTION_IMAGES[collection.slug]} alt="" /> : null}
+                <ArchiveArt id={collection.slug} />
                 <span className="card-copy">
                   <p className="meta">{published ? `${published} published` : "In progress"}</p>
                   <h3>{collection.title}</h3>
