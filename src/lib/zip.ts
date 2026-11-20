@@ -1,5 +1,8 @@
 import type { Readable } from "node:stream";
 import yauzl from "yauzl";
+import { isAllowlistedEntry } from "./zip-allowlist";
+
+export { isAllowlistedEntry } from "./zip-allowlist";
 
 export const ZIP_LIMITS = {
   maxEntryBytes: 8 * 1024 * 1024,
@@ -22,12 +25,6 @@ export function isSafeZipPath(name: string): boolean {
 export function isSymlinkMode(externalAttributes: number): boolean {
   const mode = (externalAttributes >>> 16) & 0o170000;
   return mode === 0o120000;
-}
-
-export function isAllowlistedEntry(name: string): boolean {
-  const norm = name.replace(/\\/g, "/");
-  if (norm === "Shares.csv" || norm === "InstantReposts.csv" || norm === "Rich_Media.csv") return true;
-  return /^Articles\/(?:Articles\/)?[a-z0-9-]+\.html$/.test(norm);
 }
 
 export type ZipEntry = { name: string; text: string };
