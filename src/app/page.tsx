@@ -27,7 +27,7 @@ export default async function HomePage({
   const recent = posts.slice(0, 6);
   return (
     <>
-      <section className="hero with-photo">
+      <section className="hero">
         <div>
           <h1>Post Archive</h1>
           <p className="dek">{SITE_DESCRIPTION}</p>
@@ -37,7 +37,6 @@ export default async function HomePage({
             <button type="submit">Search</button>
           </form>
         </div>
-        <ArchiveArt id="hero" />
       </section>
 
       {q ? (

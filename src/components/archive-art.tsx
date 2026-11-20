@@ -3,7 +3,6 @@ import type { ReactElement } from "react";
 const font = "Open Sauce Sans, sans-serif";
 
 const FIGURES: Record<string, () => ReactElement> = {
-  hero: LakehouseStack,
   "apache-iceberg": IcebergTable,
   "iceberg-internals": IcebergTable,
   "open-lakehouse": OpenLakehouse,
@@ -19,35 +18,9 @@ export function ArchiveArt({ id }: { id: string }) {
   const Figure = FIGURES[id];
   if (!Figure) return null;
   return (
-    <span className={id === "hero" ? "hero-figure" : "card-figure"}>
+    <span className="card-figure">
       <Figure />
     </span>
-  );
-}
-
-function LakehouseStack() {
-  const rows = [
-    ["Users", "Applications"],
-    ["Interfaces", "Arrow Flight · ODBC · JDBC"],
-    ["Compute", "Spark · Dremio · Flink"],
-    ["Table format", "Apache Iceberg"],
-    ["File format", "Parquet · ORC"],
-    ["Storage", "S3 · ADLS · HDFS"],
-  ];
-  return (
-    <svg className="archive-art" viewBox="0 0 520 292" aria-hidden="true">
-      {rows.map(([layer, value], index) => {
-        const y = 14 + index * 46;
-        const accent = layer === "Table format" ? "#c6f25a" : "#8ec8ff";
-        return (
-          <g key={layer}>
-            <rect x="16" y={y} width="488" height="38" rx="8" fill="#182230" stroke={accent} strokeWidth={layer === "Table format" ? 1.6 : 1} />
-            <text x="32" y={y + 24} fill="#9aa6b4" fontFamily={font} fontSize="12">{layer}</text>
-            <text x="488" y={y + 24} textAnchor="end" fill="#eef3f8" fontFamily={font} fontSize="14" fontWeight="600">{value}</text>
-          </g>
-        );
-      })}
-    </svg>
   );
 }
 
